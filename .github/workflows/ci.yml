@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: sheben_zavod_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/sheben_zavod_test?schema=public
+      JWT_ACCESS_SECRET: ci-access-secret-min-16-characters
+      JWT_REFRESH_SECRET: ci-refresh-secret-min-16-characters
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm install
+      - run: npm run build:shared
+      - run: npm run prisma:generate -w backend
+      - run: npx prisma migrate deploy -w backend
+
+      - name: Backend build
+        run: npm run build -w backend
+      - name: Backend lint
+        run: npm run lint -w backend
+      - name: Backend tests
+        run: npm run test -w backend
+
+      - name: Frontend build
+        run: npm run build -w frontend
+      - name: Frontend lint
+        run: npm run lint -w frontend
+      - name: Frontend tests
+        run: npm run test -w frontend

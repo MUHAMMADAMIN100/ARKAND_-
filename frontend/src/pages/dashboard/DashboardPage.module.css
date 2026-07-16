@@ -1,0 +1,56 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+}
+.stockCard {
+  margin-top: var(--sp-2);
+}
+.cardTitle {
+  font-size: var(--fs-md);
+  font-weight: 700;
+  margin-bottom: var(--sp-3);
+}
+.stockGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--sp-2);
+}
+.stockItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--sp-2) var(--sp-3);
+  background: var(--c-surface-2);
+  border-radius: var(--r-md);
+}
+.stockName {
+  font-size: var(--fs-xs);
+  color: var(--c-text-muted);
+}
+.stockQty {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.dim {
+  color: var(--c-text-dim);
+  font-size: var(--fs-sm);
+}
+
+@media (min-width: 640px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .stockGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media (min-width: 900px) {
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .stockGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

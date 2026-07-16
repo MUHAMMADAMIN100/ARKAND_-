@@ -1,0 +1,27 @@
+.wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  margin-top: var(--sp-3);
+  flex-wrap: wrap;
+}
+.info {
+  font-size: var(--fs-xs);
+  color: var(--c-text-muted);
+}
+.controls {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+.page {
+  font-size: var(--fs-sm);
+  min-width: 54px;
+  text-align: center;
+}
+.more {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--sp-3);
+}

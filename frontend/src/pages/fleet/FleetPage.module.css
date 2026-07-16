@@ -1,0 +1,90 @@
+.tabs {
+  display: flex;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-4);
+  padding-bottom: var(--sp-1);
+}
+.tab {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--sp-4);
+  min-height: var(--tap-min);
+  border-radius: var(--r-full);
+  background: var(--c-surface-2);
+  border: 1px solid var(--c-border);
+  color: var(--c-text-muted);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.tabActive {
+  background: var(--c-primary);
+  border-color: var(--c-primary);
+  color: var(--c-primary-contrast);
+}
+
+.filterItem {
+  flex: 1 1 150px;
+  min-width: 130px;
+  max-width: 260px;
+}
+
+.vehicleGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--sp-3);
+}
+@media (min-width: 640px) {
+  .vehicleGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (min-width: 900px) {
+  .vehicleGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.vehicleCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+.vehicleHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-2);
+}
+.vehicleName {
+  font-weight: 700;
+  font-size: var(--fs-md);
+}
+.vehicleMeta {
+  color: var(--c-text-muted);
+  font-size: var(--fs-xs);
+  margin-top: 2px;
+}
+.vehicleStats {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+.statRow {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  font-size: var(--fs-sm);
+}
+.statRow dt {
+  color: var(--c-text-muted);
+}
+.vehicleActions {
+  display: flex;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+.vehicleActions > * {
+  flex: 1 1 auto;
+}

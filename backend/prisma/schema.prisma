@@ -1,0 +1,719 @@
+// Щебёночный завод — схема БД.
+// PK: UUIDv7 (упорядочены по времени — дружелюбны к B-tree, годятся для keyset-пагинации).
+// Деньги: Decimal(14,2). Количество: Decimal(14,3). Все движения — append-only.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== ENUMS ====================
+
+enum Role {
+  OWNER
+  ADMIN
+  OPERATOR
+  ASSISTANT_OPERATOR
+  SALES_MANAGER
+  DUMP_TRUCK_DRIVER
+  EXCAVATOR_DRIVER
+  MECHANIC
+  SUPPLY_MANAGER
+  FINANCIER
+}
+
+enum Unit {
+  M3
+  TON
+}
+
+enum ProductKind {
+  RAW
+  FINISHED
+}
+
+enum WarehouseType {
+  RAW
+  FINISHED
+}
+
+enum ClientType {
+  EXTERNAL
+  INTERNAL
+}
+
+enum OrderStatus {
+  NEW
+  CONFIRMED
+  READY
+  SHIPPING
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  CASH
+  TRANSFER
+  BARTER
+}
+
+enum DeliveryType {
+  DELIVERY
+  PICKUP
+}
+
+enum ShiftStatus {
+  OPEN
+  CLOSED
+}
+
+enum TalonStatus {
+  ISSUED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum VehicleType {
+  EXCAVATOR
+  DUMP_TRUCK
+  CRUSHER
+  OTHER
+}
+
+enum TripType {
+  RAW_HAUL
+  DELIVERY
+}
+
+enum MaintenanceType {
+  REPAIR
+  SERVICE
+}
+
+enum StockMovementType {
+  RAW_IN
+  RAW_CONSUME
+  PRODUCTION_IN
+  SHIPMENT_OUT
+  PROCUREMENT_IN
+  INVENTORY_ADJUST
+  MANUAL_ADJUST
+}
+
+enum CashDirection {
+  INCOME
+  EXPENSE
+}
+
+enum CashCategory {
+  SALE
+  OTHER_INCOME
+  FUEL
+  ELECTRICITY
+  SALARY
+  TAX
+  REPAIR
+  TRANSPORT
+  PROCUREMENT
+  OTHER_EXPENSE
+}
+
+enum CashStatus {
+  PENDING
+  CONFIRMED
+  REJECTED
+}
+
+enum DebtEntryType {
+  SHIPMENT
+  REPAYMENT
+  OFFSET
+}
+
+enum PurchaseStatus {
+  NEW
+  PENDING_APPROVAL
+  APPROVED
+  REJECTED
+  PURCHASED
+  RECEIVED
+  CANCELLED
+}
+
+enum ApprovalDecision {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum InventoryScope {
+  FULL
+  PARTIAL
+}
+
+enum InventoryStatus {
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum OutboxStatus {
+  PENDING
+  PROCESSED
+  FAILED
+}
+
+// ==================== USERS & AUTH ====================
+
+model User {
+  id           String  @id @default(uuid(7)) @db.Uuid
+  login        String  @unique @db.VarChar(64)
+  passwordHash String  @map("password_hash")
+  fullName     String  @map("full_name") @db.VarChar(160)
+  role         Role
+  phone        String? @db.VarChar(32)
+  isActive     Boolean @default(true) @map("is_active")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  refreshTokens      RefreshToken[]
+  ordersCreated      Order[]           @relation("OrderCreatedBy")
+  shiftsOperated     ProductionShift[] @relation("ShiftOperator")
+  talonsIssued       Talon[]           @relation("TalonIssuedBy")
+  talonsDriven       Talon[]           @relation("TalonDriver")
+  tripsDriven        Trip[]            @relation("TripDriver")
+  tripsEntered       Trip[]            @relation("TripEnteredBy")
+  maintenances       MaintenanceRecord[]
+  fuelLogs           FuelLog[]
+  electricityLogs    ElectricityLog[]
+  cashTransactions   CashTransaction[] @relation("CashCashier")
+  cashConfirmed      CashTransaction[] @relation("CashConfirmedBy")
+  debtEntries        DebtEntry[]
+  purchaseRequests   PurchaseRequest[]
+  ownerApprovals     OwnerApproval[]
+  inventoriesStarted Inventory[]       @relation("InventoryStartedBy")
+  inventoriesCounted Inventory[]       @relation("InventoryCountedBy")
+  inventoryLiability InventoryItem[]   @relation("InventoryResponsible")
+  stockMovements     StockMovement[]
+  auditLogs          AuditLog[]
+
+  @@index([role])
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid(7)) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  tokenHash String    @unique @map("token_hash")
+  expiresAt DateTime  @map("expires_at")
+  revokedAt DateTime? @map("revoked_at")
+  ip        String?   @db.VarChar(64)
+  userAgent String?   @map("user_agent") @db.VarChar(256)
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
+  @@map("refresh_tokens")
+}
+
+// ==================== CATALOG & WAREHOUSE ====================
+
+model Product {
+  id        String      @id @default(uuid(7)) @db.Uuid
+  name      String      @db.VarChar(120)
+  kind      ProductKind
+  unit      Unit        @default(M3)
+  price     Decimal     @db.Decimal(14, 2)
+  minStock  Decimal?    @map("min_stock") @db.Decimal(14, 3)
+  isActive  Boolean     @default(true) @map("is_active")
+  sortOrder Int         @default(0) @map("sort_order")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  stockItems       StockItem[]
+  stockMovements   StockMovement[]
+  orderItems       OrderItem[]
+  outputs          ProductionOutput[]
+  talons           Talon[]
+  purchaseRequests PurchaseRequest[]
+  inventoryItems   InventoryItem[]
+
+  @@index([kind, isActive])
+  @@map("products")
+}
+
+model Warehouse {
+  id   String        @id @default(uuid(7)) @db.Uuid
+  name String        @db.VarChar(120)
+  type WarehouseType @unique
+
+  stockItems  StockItem[]
+  movements   StockMovement[]
+  inventories Inventory[]
+
+  @@map("warehouses")
+}
+
+model StockItem {
+  id          String  @id @default(uuid(7)) @db.Uuid
+  warehouseId String  @map("warehouse_id") @db.Uuid
+  productId   String  @map("product_id") @db.Uuid
+  quantity    Decimal @default(0) @db.Decimal(14, 3)
+
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  warehouse Warehouse @relation(fields: [warehouseId], references: [id])
+  product   Product   @relation(fields: [productId], references: [id])
+
+  @@unique([warehouseId, productId])
+  @@map("stock_items")
+}
+
+model StockMovement {
+  id          String            @id @default(uuid(7)) @db.Uuid
+  warehouseId String            @map("warehouse_id") @db.Uuid
+  productId   String            @map("product_id") @db.Uuid
+  type        StockMovementType
+  // Подписанное количество: приход > 0, расход < 0
+  qty         Decimal           @db.Decimal(14, 3)
+  refType     String?           @map("ref_type") @db.VarChar(40)
+  refId       String?           @map("ref_id") @db.Uuid
+  byUserId    String            @map("by_user_id") @db.Uuid
+  comment     String?           @db.VarChar(500)
+  createdAt   DateTime          @default(now()) @map("created_at")
+
+  warehouse Warehouse @relation(fields: [warehouseId], references: [id])
+  product   Product   @relation(fields: [productId], references: [id])
+  byUser    User      @relation(fields: [byUserId], references: [id])
+
+  @@index([warehouseId, productId, createdAt(sort: Desc)])
+  @@index([createdAt(sort: Desc)])
+  @@index([refType, refId])
+  @@map("stock_movements")
+}
+
+// ==================== CLIENTS ====================
+
+model Client {
+  id       String     @id @default(uuid(7)) @db.Uuid
+  name     String     @db.VarChar(160)
+  type     ClientType @default(EXTERNAL)
+  phone    String?    @db.VarChar(32)
+  note     String?    @db.VarChar(500)
+  isActive Boolean    @default(true) @map("is_active")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  orders           Order[]
+  debtEntries      DebtEntry[]
+  cashTransactions CashTransaction[]
+
+  @@index([type, isActive])
+  @@map("clients")
+}
+
+// ==================== ORDERS ====================
+
+model Order {
+  id            String        @id @default(uuid(7)) @db.Uuid
+  number        Int           @unique @default(autoincrement())
+  clientId      String        @map("client_id") @db.Uuid
+  status        OrderStatus   @default(NEW)
+  paymentMethod PaymentMethod @map("payment_method")
+  deliveryType  DeliveryType  @map("delivery_type")
+  plannedDate   DateTime?     @map("planned_date") @db.Date
+  note          String?       @db.VarChar(500)
+  createdById   String        @map("created_by_id") @db.Uuid
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  client    Client      @relation(fields: [clientId], references: [id])
+  createdBy User        @relation("OrderCreatedBy", fields: [createdById], references: [id])
+  items     OrderItem[]
+  talons    Talon[]
+  cashTransactions CashTransaction[]
+
+  @@index([status, createdAt(sort: Desc)])
+  @@index([clientId, createdAt(sort: Desc)])
+  // Список заказов по умолчанию открывается без фильтра по статусу (все статусы),
+  // отсортированным по created_at — под это нужен отдельный индекс без status в голове.
+  @@index([createdAt(sort: Desc)])
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String  @id @default(uuid(7)) @db.Uuid
+  orderId   String  @map("order_id") @db.Uuid
+  productId String  @map("product_id") @db.Uuid
+  quantity  Decimal @db.Decimal(14, 3)
+  price     Decimal @db.Decimal(14, 2)
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@unique([orderId, productId])
+  @@map("order_items")
+}
+
+// ==================== PRODUCTION ====================
+
+model ProductionShift {
+  id          String      @id @default(uuid(7)) @db.Uuid
+  date        DateTime    @db.Date
+  shiftNumber Int         @default(1) @map("shift_number")
+  status      ShiftStatus @default(OPEN)
+  operatorId  String      @map("operator_id") @db.Uuid
+  // Израсходовано горной массы за смену (м³)
+  rawConsumed Decimal     @default(0) @map("raw_consumed") @db.Decimal(14, 3)
+  note        String?     @db.VarChar(500)
+  closedAt    DateTime?   @map("closed_at")
+  createdAt   DateTime    @default(now()) @map("created_at")
+
+  operator User               @relation("ShiftOperator", fields: [operatorId], references: [id])
+  outputs  ProductionOutput[]
+
+  @@unique([date, shiftNumber])
+  @@index([date(sort: Desc)])
+  @@map("production_shifts")
+}
+
+model ProductionOutput {
+  id        String  @id @default(uuid(7)) @db.Uuid
+  shiftId   String  @map("shift_id") @db.Uuid
+  productId String  @map("product_id") @db.Uuid
+  quantity  Decimal @db.Decimal(14, 3)
+
+  shift   ProductionShift @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+  product Product         @relation(fields: [productId], references: [id])
+
+  @@unique([shiftId, productId])
+  @@map("production_outputs")
+}
+
+// ==================== SHIPMENTS (TALONS) ====================
+
+model Talon {
+  id                 String       @id @default(uuid(7)) @db.Uuid
+  number             Int          @unique @default(autoincrement())
+  orderId            String       @map("order_id") @db.Uuid
+  productId          String       @map("product_id") @db.Uuid
+  quantity           Decimal      @db.Decimal(14, 3)
+  price              Decimal      @db.Decimal(14, 2)
+  amount             Decimal      @db.Decimal(14, 2)
+  deliveryType       DeliveryType @map("delivery_type")
+  status             TalonStatus  @default(ISSUED)
+  vehicleId          String?      @map("vehicle_id") @db.Uuid
+  driverId           String?      @map("driver_id") @db.Uuid
+  clientVehiclePlate String?      @map("client_vehicle_plate") @db.VarChar(32)
+  note               String?      @db.VarChar(500)
+  issuedById         String       @map("issued_by_id") @db.Uuid
+  issuedAt           DateTime     @default(now()) @map("issued_at")
+  shippedAt          DateTime?    @map("shipped_at")
+  deliveredAt        DateTime?    @map("delivered_at")
+
+  order    Order    @relation(fields: [orderId], references: [id])
+  product  Product  @relation(fields: [productId], references: [id])
+  vehicle  Vehicle? @relation(fields: [vehicleId], references: [id])
+  driver   User?    @relation("TalonDriver", fields: [driverId], references: [id])
+  issuedBy User     @relation("TalonIssuedBy", fields: [issuedById], references: [id])
+  trips    Trip[]
+
+  @@index([orderId])
+  @@index([status, issuedAt(sort: Desc)])
+  @@index([driverId, issuedAt(sort: Desc)])
+  @@map("talons")
+}
+
+// ==================== FLEET ====================
+
+model Vehicle {
+  id       String      @id @default(uuid(7)) @db.Uuid
+  name     String      @db.VarChar(120)
+  type     VehicleType
+  plate    String?     @db.VarChar(32)
+  isActive Boolean     @default(true) @map("is_active")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  talons       Talon[]
+  trips        Trip[]
+  maintenances MaintenanceRecord[]
+  fuelLogs     FuelLog[]
+
+  @@index([type, isActive])
+  @@map("vehicles")
+}
+
+model Trip {
+  id          String   @id @default(uuid(7)) @db.Uuid
+  vehicleId   String   @map("vehicle_id") @db.Uuid
+  driverId    String   @map("driver_id") @db.Uuid
+  type        TripType
+  date        DateTime @db.Date
+  // Объём породы за рейс (RAW_HAUL)
+  quantity    Decimal? @db.Decimal(14, 3)
+  talonId     String?  @map("talon_id") @db.Uuid
+  note        String?  @db.VarChar(500)
+  enteredById String   @map("entered_by_id") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  vehicle   Vehicle @relation(fields: [vehicleId], references: [id])
+  driver    User    @relation("TripDriver", fields: [driverId], references: [id])
+  talon     Talon?  @relation(fields: [talonId], references: [id])
+  enteredBy User    @relation("TripEnteredBy", fields: [enteredById], references: [id])
+
+  @@index([driverId, date(sort: Desc)])
+  @@index([vehicleId, date(sort: Desc)])
+  @@index([date(sort: Desc)])
+  @@map("trips")
+}
+
+model MaintenanceRecord {
+  id          String          @id @default(uuid(7)) @db.Uuid
+  vehicleId   String          @map("vehicle_id") @db.Uuid
+  type        MaintenanceType
+  description String          @db.VarChar(1000)
+  cost        Decimal         @db.Decimal(14, 2)
+  date        DateTime        @db.Date
+  mechanicId  String          @map("mechanic_id") @db.Uuid
+  createdAt   DateTime        @default(now()) @map("created_at")
+
+  vehicle  Vehicle @relation(fields: [vehicleId], references: [id])
+  mechanic User    @relation(fields: [mechanicId], references: [id])
+
+  @@index([vehicleId, date(sort: Desc)])
+  // Список ТО/ремонтов без фильтра по машине (весь журнал) сортируется по date —
+  // индекс с ведущим vehicleId для этого не годится (в отличие от FuelLog/Trip, здесь
+  // отдельного [date] индекса не было).
+  @@index([date(sort: Desc)])
+  @@map("maintenance_records")
+}
+
+model FuelLog {
+  id        String   @id @default(uuid(7)) @db.Uuid
+  vehicleId String   @map("vehicle_id") @db.Uuid
+  liters    Decimal  @db.Decimal(14, 3)
+  cost      Decimal  @db.Decimal(14, 2)
+  date      DateTime @db.Date
+  byUserId  String   @map("by_user_id") @db.Uuid
+  note      String?  @db.VarChar(500)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id])
+  byUser  User    @relation(fields: [byUserId], references: [id])
+
+  @@index([vehicleId, date(sort: Desc)])
+  @@index([date(sort: Desc)])
+  @@map("fuel_logs")
+}
+
+// ==================== ENERGY ====================
+
+model ElectricityLog {
+  id        String   @id @default(uuid(7)) @db.Uuid
+  // Первое число месяца учёта
+  month     DateTime @unique @db.Date
+  kwh       Decimal  @db.Decimal(14, 3)
+  cost      Decimal  @db.Decimal(14, 2)
+  note      String?  @db.VarChar(500)
+  byUserId  String   @map("by_user_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  byUser User @relation(fields: [byUserId], references: [id])
+
+  @@map("electricity_logs")
+}
+
+// ==================== FINANCE ====================
+
+model CashTransaction {
+  id            String        @id @default(uuid(7)) @db.Uuid
+  number        Int           @unique @default(autoincrement())
+  direction     CashDirection
+  amount        Decimal       @db.Decimal(14, 2)
+  method        PaymentMethod
+  category      CashCategory
+  status        CashStatus    @default(PENDING)
+  date          DateTime      @db.Date
+  clientId      String?       @map("client_id") @db.Uuid
+  orderId       String?       @map("order_id") @db.Uuid
+  refType       String?       @map("ref_type") @db.VarChar(40)
+  refId         String?       @map("ref_id") @db.Uuid
+  cashierId     String        @map("cashier_id") @db.Uuid
+  confirmedById String?       @map("confirmed_by_id") @db.Uuid
+  confirmedAt   DateTime?     @map("confirmed_at")
+  note          String?       @db.VarChar(500)
+  createdAt     DateTime      @default(now()) @map("created_at")
+
+  client      Client? @relation(fields: [clientId], references: [id])
+  order       Order?  @relation(fields: [orderId], references: [id])
+  cashier     User    @relation("CashCashier", fields: [cashierId], references: [id])
+  confirmedBy User?   @relation("CashConfirmedBy", fields: [confirmedById], references: [id])
+
+  @@index([status, date(sort: Desc)])
+  // Список кассира (ABAC: OPERATOR/SALES_MANAGER видят только свои операции) сортируется
+  // по [date desc, created_at desc] — индекс под этот реальный порядок, а не под createdAt один.
+  @@index([cashierId, date(sort: Desc), createdAt(sort: Desc)])
+  @@index([direction, status, date])
+  @@map("cash_transactions")
+}
+
+model DebtEntry {
+  id       String        @id @default(uuid(7)) @db.Uuid
+  clientId String        @map("client_id") @db.Uuid
+  type     DebtEntryType
+  // Подписанная сумма: SHIPMENT > 0 (нам должны больше), REPAYMENT/OFFSET < 0
+  amount   Decimal       @db.Decimal(14, 2)
+  date     DateTime      @db.Date
+  refType  String?       @map("ref_type") @db.VarChar(40)
+  refId    String?       @map("ref_id") @db.Uuid
+  note     String?       @db.VarChar(500)
+  byUserId String        @map("by_user_id") @db.Uuid
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  client Client @relation(fields: [clientId], references: [id])
+  byUser User   @relation(fields: [byUserId], references: [id])
+
+  @@index([clientId, createdAt(sort: Desc)])
+  @@map("debt_entries")
+}
+
+// ==================== PROCUREMENT ====================
+
+model PurchaseRequest {
+  id            String         @id @default(uuid(7)) @db.Uuid
+  number        Int            @unique @default(autoincrement())
+  title         String         @db.VarChar(200)
+  productId     String?        @map("product_id") @db.Uuid
+  quantity      Decimal?       @db.Decimal(14, 3)
+  unit          Unit?
+  estimatedCost Decimal?       @map("estimated_cost") @db.Decimal(14, 2)
+  actualCost    Decimal?       @map("actual_cost") @db.Decimal(14, 2)
+  supplierName  String?        @map("supplier_name") @db.VarChar(200)
+  status        PurchaseStatus @default(NEW)
+  isLarge       Boolean        @default(false) @map("is_large")
+  isAuto        Boolean        @default(false) @map("is_auto")
+  note          String?        @db.VarChar(1000)
+  createdById   String         @map("created_by_id") @db.Uuid
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  product   Product?        @relation(fields: [productId], references: [id])
+  createdBy User            @relation(fields: [createdById], references: [id])
+  approvals OwnerApproval[]
+
+  @@index([status, createdAt(sort: Desc)])
+  // Список заявок по умолчанию открывается без фильтра по статусу — индекс без status в голове.
+  @@index([createdAt(sort: Desc)])
+  @@map("purchase_requests")
+}
+
+model OwnerApproval {
+  id        String           @id @default(uuid(7)) @db.Uuid
+  requestId String           @map("request_id") @db.Uuid
+  ownerId   String           @map("owner_id") @db.Uuid
+  decision  ApprovalDecision @default(PENDING)
+  note      String?          @db.VarChar(500)
+  decidedAt DateTime?        @map("decided_at")
+
+  request PurchaseRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  owner   User            @relation(fields: [ownerId], references: [id])
+
+  @@unique([requestId, ownerId])
+  @@map("owner_approvals")
+}
+
+// ==================== INVENTORY ====================
+
+model Inventory {
+  id          String          @id @default(uuid(7)) @db.Uuid
+  number      Int             @unique @default(autoincrement())
+  warehouseId String          @map("warehouse_id") @db.Uuid
+  scope       InventoryScope
+  status      InventoryStatus @default(IN_PROGRESS)
+  note        String?         @db.VarChar(500)
+  startedById String          @map("started_by_id") @db.Uuid
+  countedById String?         @map("counted_by_id") @db.Uuid
+  startedAt   DateTime        @default(now()) @map("started_at")
+  completedAt DateTime?       @map("completed_at")
+
+  warehouse Warehouse       @relation(fields: [warehouseId], references: [id])
+  startedBy User            @relation("InventoryStartedBy", fields: [startedById], references: [id])
+  countedBy User?           @relation("InventoryCountedBy", fields: [countedById], references: [id])
+  items     InventoryItem[]
+
+  @@index([status])
+  @@map("inventories")
+}
+
+model InventoryItem {
+  id            String   @id @default(uuid(7)) @db.Uuid
+  inventoryId   String   @map("inventory_id") @db.Uuid
+  productId     String   @map("product_id") @db.Uuid
+  systemQty     Decimal  @map("system_qty") @db.Decimal(14, 3)
+  factQty       Decimal? @map("fact_qty") @db.Decimal(14, 3)
+  diffQty       Decimal? @map("diff_qty") @db.Decimal(14, 3)
+  diffAmount    Decimal? @map("diff_amount") @db.Decimal(14, 2)
+  explanation   String?  @db.VarChar(1000)
+  responsibleId String?  @map("responsible_id") @db.Uuid
+
+  inventory   Inventory @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
+  product     Product   @relation(fields: [productId], references: [id])
+  responsible User?     @relation("InventoryResponsible", fields: [responsibleId], references: [id])
+
+  @@unique([inventoryId, productId])
+  @@map("inventory_items")
+}
+
+// ==================== SYSTEM ====================
+
+model Setting {
+  key       String   @id @db.VarChar(80)
+  value     Json
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("settings")
+}
+
+model AuditLog {
+  id        String   @id @default(uuid(7)) @db.Uuid
+  userId    String?  @map("user_id") @db.Uuid
+  action    String   @db.VarChar(80)
+  entity    String   @db.VarChar(80)
+  entityId  String?  @map("entity_id") @db.VarChar(80)
+  payload   Json?
+  ip        String?  @db.VarChar(64)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([createdAt(sort: Desc)])
+  @@index([entity, entityId])
+  @@map("audit_logs")
+}
+
+model OutboxEvent {
+  id          String       @id @default(uuid(7)) @db.Uuid
+  type        String       @db.VarChar(80)
+  payload     Json
+  status      OutboxStatus @default(PENDING)
+  attempts    Int          @default(0)
+  createdAt   DateTime     @default(now()) @map("created_at")
+  processedAt DateTime?    @map("processed_at")
+
+  @@index([status, createdAt])
+  @@map("outbox_events")
+}

@@ -1,0 +1,22 @@
+.metaGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--sp-3);
+}
+
+.itemsTotal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 700;
+  font-size: var(--fs-md);
+  padding-top: var(--sp-2);
+  border-top: 1px solid var(--c-border);
+}
+
+.rowActions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  justify-content: flex-end;
+}

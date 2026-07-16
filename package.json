@@ -1,0 +1,26 @@
+{
+  "name": "arkand-sheben-zavod",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ERP-модуль холдинга Arkand — Щебёночный завод (карьер). ТЗ Часть 4.",
+  "workspaces": [
+    "packages/shared",
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "build": "npm run build -w @sheben/shared && npm run build -w backend && npm run build -w frontend",
+    "build:shared": "npm run build -w @sheben/shared",
+    "build:backend": "npm run build -w @sheben/shared && npm run build -w backend",
+    "build:frontend": "npm run build -w @sheben/shared && npm run build -w frontend",
+    "dev:backend": "npm run start:dev -w backend",
+    "dev:frontend": "npm run dev -w frontend",
+    "test": "npm run test -w backend && npm run test -w frontend",
+    "lint": "npm run lint -w backend && npm run lint -w frontend",
+    "prisma:migrate": "npm run prisma:migrate -w backend",
+    "prisma:seed": "npm run prisma:seed -w backend"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -1,0 +1,97 @@
+/* Десктоп-таблица виден с 720px, ниже — карточки */
+.tableWrap {
+  display: none;
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  background: var(--c-surface);
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-sm);
+}
+.table thead th {
+  text-align: left;
+  padding: var(--sp-3) var(--sp-3);
+  color: var(--c-text-muted);
+  font-weight: 600;
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-bottom: 1px solid var(--c-border);
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  background: var(--c-surface-2);
+  z-index: 1;
+}
+.table tbody td {
+  padding: var(--sp-3) var(--sp-3);
+  border-bottom: 1px solid var(--c-border);
+  vertical-align: middle;
+}
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+.table tbody tr:hover {
+  background: var(--c-surface-2);
+}
+.clickable {
+  cursor: pointer;
+}
+
+/* Мобильные карточки */
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+.card {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  padding: var(--sp-3) var(--sp-4);
+}
+.cardHead {
+  font-weight: 700;
+  font-size: var(--fs-md);
+  margin-bottom: var(--sp-2);
+  padding-bottom: var(--sp-2);
+  border-bottom: 1px solid var(--c-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+.cardBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+.cardRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-3);
+}
+.cardRow dt {
+  color: var(--c-text-muted);
+  font-size: var(--fs-xs);
+  flex-shrink: 0;
+}
+.cardRow dd {
+  text-align: right;
+  font-size: var(--fs-sm);
+  min-width: 0;
+  word-break: break-word;
+}
+
+@media (min-width: 720px) {
+  .tableWrap {
+    display: block;
+  }
+  .cards {
+    display: none;
+  }
+}

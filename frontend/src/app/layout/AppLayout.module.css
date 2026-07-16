@@ -1,0 +1,234 @@
+.shell {
+  display: flex;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* ---------- Сайдбар (десктоп) ---------- */
+.sidebar {
+  display: none;
+  flex-direction: column;
+  width: var(--sidebar-w);
+  flex-shrink: 0;
+  background: var(--c-surface);
+  border-right: 1px solid var(--c-border);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100dvh;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-4);
+  border-bottom: 1px solid var(--c-border);
+  height: var(--header-h);
+}
+.brandIcon {
+  font-size: 22px;
+}
+.brandText {
+  font-weight: 800;
+  font-size: var(--fs-lg);
+}
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--sp-3);
+  overflow-y: auto;
+}
+.navLink {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3);
+  border-radius: var(--r-md);
+  color: var(--c-text-muted);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  min-height: var(--tap-min);
+  transition: background 0.12s, color 0.12s;
+}
+.navLink:hover {
+  background: var(--c-surface-2);
+  color: var(--c-text);
+}
+.active {
+  background: var(--c-surface-3);
+  color: var(--c-primary);
+  font-weight: 600;
+}
+.navIcon {
+  font-size: 18px;
+  width: 24px;
+  text-align: center;
+}
+
+/* ---------- Основная область ---------- */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-header);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  height: var(--header-h);
+  padding: 0 var(--sp-3);
+  background: var(--c-surface);
+  border-bottom: 1px solid var(--c-border);
+}
+.burger {
+  font-size: 22px;
+  width: var(--tap-min);
+  height: var(--tap-min);
+  color: var(--c-text);
+  flex-shrink: 0;
+}
+.headerTitle {
+  font-weight: 700;
+  font-size: var(--fs-md);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.userBox {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.15;
+  max-width: 45vw;
+}
+.userName {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.userRole {
+  font-size: var(--fs-xs);
+  color: var(--c-text-dim);
+}
+.logout {
+  width: var(--tap-min);
+  height: var(--tap-min);
+  border-radius: var(--r-md);
+  color: var(--c-text-muted);
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.logout:hover {
+  background: var(--c-danger-bg);
+  color: var(--c-danger);
+}
+
+.content {
+  flex: 1;
+  padding: var(--sp-4);
+  padding-bottom: calc(var(--bottomnav-h) + var(--sp-4));
+  max-width: var(--container-max);
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* ---------- Мобильный drawer ---------- */
+.drawer {
+  position: fixed;
+  inset: 0;
+  top: var(--header-h);
+  background: rgba(3, 7, 18, 0.6);
+  z-index: var(--z-drawer);
+}
+.drawerNav {
+  background: var(--c-surface);
+  border-bottom: 1px solid var(--c-border);
+  padding: var(--sp-3);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: calc(100dvh - var(--header-h));
+  overflow-y: auto;
+  animation: slideDown 0.18s ease;
+}
+@keyframes slideDown {
+  from {
+    transform: translateY(-12px);
+    opacity: 0.5;
+  }
+}
+
+/* ---------- Нижняя навигация (мобильный) ---------- */
+.bottomNav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--z-header);
+  display: flex;
+  height: var(--bottomnav-h);
+  background: var(--c-surface);
+  border-top: 1px solid var(--c-border);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.bottomItem {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: var(--c-text-dim);
+  min-width: 0;
+}
+.bottomActive {
+  color: var(--c-primary);
+}
+.bottomIcon {
+  font-size: 20px;
+}
+.bottomLabel {
+  font-size: 10px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* ---------- Десктоп ≥ 900px ---------- */
+@media (min-width: 900px) {
+  .sidebar {
+    display: flex;
+  }
+  .burger {
+    display: none;
+  }
+  .bottomNav {
+    display: none;
+  }
+  .content {
+    padding: var(--sp-6);
+    padding-bottom: var(--sp-6);
+  }
+  .header {
+    padding: 0 var(--sp-5);
+  }
+  .headerTitle {
+    display: none;
+  }
+}

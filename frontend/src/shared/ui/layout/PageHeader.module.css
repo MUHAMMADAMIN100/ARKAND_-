@@ -1,0 +1,43 @@
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--sp-4);
+}
+.title {
+  font-size: var(--fs-2xl);
+  font-weight: 700;
+  line-height: var(--lh-tight);
+}
+.subtitle {
+  color: var(--c-text-muted);
+  font-size: var(--fs-sm);
+  margin-top: 2px;
+}
+.actions {
+  display: flex;
+  gap: var(--sp-2);
+  flex-shrink: 0;
+}
+.toolbar {
+  display: flex;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: var(--sp-4);
+}
+.toolbar > * {
+  min-width: 0;
+}
+
+/* На мобильном действия занимают всю ширину */
+@media (max-width: 520px) {
+  .actions {
+    width: 100%;
+  }
+  .actions > * {
+    flex: 1;
+  }
+}

@@ -1,0 +1,45 @@
+.tabs {
+  display: flex;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-4);
+}
+.filters {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  border-bottom: 1px solid var(--c-border);
+}
+.checkboxRow {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-height: var(--tap-min);
+  font-size: var(--fs-base);
+  color: var(--c-text-muted);
+  grid-column: 1 / -1;
+}
+.checkboxRow input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--c-primary);
+}
+.qtyIn {
+  color: var(--c-success);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.qtyOut {
+  color: var(--c-danger);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (min-width: 640px) {
+  .filters {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .checkboxRow {
+    grid-column: auto;
+  }
+}

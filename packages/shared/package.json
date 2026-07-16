@@ -1,0 +1,21 @@
+{
+  "name": "@sheben/shared",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Общие Zod-схемы, enum'ы и типы для фронтенда и бэкенда",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "zod": "^4.1.5"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2"
+  }
+}
