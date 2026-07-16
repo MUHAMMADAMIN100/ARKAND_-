@@ -22,6 +22,7 @@ import {
   resetUserPassword,
   deleteUser,
 } from '../../entities/user/api';
+import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 import {
   Button,
   Card,
@@ -151,15 +152,16 @@ export function UsersPage() {
               setEditing(u);
               setModalOpen(true);
             }}
+            aria-label="Изменить"
           >
-            ✎
+            <FiEdit2 />
           </Button>
           <Button size="sm" variant="secondary" onClick={() => setResetTarget(u)}>
             Сбросить пароль
           </Button>
           {u.isActive && (
-            <Button size="sm" variant="ghost" onClick={() => deleteMut.mutate(u.id)}>
-              🗑
+            <Button size="sm" variant="ghost" aria-label="Деактивировать" onClick={() => deleteMut.mutate(u.id)}>
+              <FiTrash2 />
             </Button>
           )}
         </span>

@@ -1,6 +1,7 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { clsx } from 'clsx';
+import { FiMenu, FiLogOut, FiHexagon } from 'react-icons/fi';
 import { navForRole } from '../nav';
 import { useAuthStore } from '../../shared/auth/auth.store';
 import { http } from '../../shared/api/http';
@@ -31,7 +32,9 @@ export function AppLayout() {
       {/* Сайдбар (десктоп) */}
       <aside className={styles.sidebar}>
         <div className={styles.brand}>
-          <span className={styles.brandIcon}>🪨</span>
+          <span className={styles.brandIcon}>
+            <FiHexagon />
+          </span>
           <span className={styles.brandText}>Щебзавод</span>
         </div>
         <nav className={styles.nav}>
@@ -42,7 +45,9 @@ export function AppLayout() {
               end={item.to === '/'}
               className={({ isActive }) => clsx(styles.navLink, isActive && styles.active)}
             >
-              <span className={styles.navIcon}>{item.icon}</span>
+              <span className={styles.navIcon}>
+                <item.icon />
+              </span>
               <span>{item.label}</span>
             </NavLink>
           ))}
@@ -53,7 +58,7 @@ export function AppLayout() {
       <div className={styles.main}>
         <header className={styles.header}>
           <button className={styles.burger} onClick={() => setMenuOpen((v) => !v)} aria-label="Меню">
-            ☰
+            <FiMenu />
           </button>
           <span className={styles.headerTitle}>Щебёночный завод</span>
           <div className={styles.userBox}>
@@ -62,7 +67,7 @@ export function AppLayout() {
               <span className={styles.userRole}>{user ? RoleLabel[user.role] : ''}</span>
             </div>
             <button className={styles.logout} onClick={logout} aria-label="Выйти" title="Выйти">
-              ⎋
+              <FiLogOut />
             </button>
           </div>
         </header>
@@ -79,7 +84,9 @@ export function AppLayout() {
                   onClick={() => setMenuOpen(false)}
                   className={({ isActive }) => clsx(styles.navLink, isActive && styles.active)}
                 >
-                  <span className={styles.navIcon}>{item.icon}</span>
+                  <span className={styles.navIcon}>
+                    <item.icon />
+                  </span>
                   <span>{item.label}</span>
                 </NavLink>
               ))}
@@ -100,7 +107,9 @@ export function AppLayout() {
               end={item.to === '/'}
               className={({ isActive }) => clsx(styles.bottomItem, isActive && styles.bottomActive)}
             >
-              <span className={styles.bottomIcon}>{item.icon}</span>
+              <span className={styles.bottomIcon}>
+                <item.icon />
+              </span>
               <span className={styles.bottomLabel}>{item.label}</span>
             </NavLink>
           ))}

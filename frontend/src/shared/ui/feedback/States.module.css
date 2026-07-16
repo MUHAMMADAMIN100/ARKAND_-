@@ -9,7 +9,19 @@
   min-height: 180px;
 }
 .icon {
-  font-size: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: var(--r-full);
+  background: var(--c-surface-3);
+  color: var(--c-text-dim);
+  font-size: 26px;
+}
+.iconDanger {
+  background: var(--c-danger-bg);
+  color: var(--c-danger);
 }
 .emptyTitle {
   font-size: var(--fs-md);

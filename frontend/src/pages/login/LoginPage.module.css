@@ -5,7 +5,8 @@
   align-items: center;
   justify-content: center;
   padding: var(--sp-4);
-  background: radial-gradient(circle at 30% 20%, #14213d 0%, var(--c-bg) 60%);
+  /* Тёплый Paper-фон с мягким вишнёвым свечением бренда */
+  background: radial-gradient(circle at 50% 0%, var(--crimson-50) 0%, var(--c-bg) 55%);
 }
 .card {
   width: 100%;
@@ -24,12 +25,21 @@
   margin-bottom: var(--sp-2);
 }
 .icon {
-  font-size: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 58px;
+  height: 58px;
+  border-radius: var(--r-lg);
+  background: var(--c-primary);
+  color: var(--c-primary-contrast);
+  font-size: 30px;
 }
 .title {
   font-size: var(--fs-xl);
   font-weight: 800;
-  margin-top: var(--sp-2);
+  margin-top: var(--sp-3);
+  color: var(--c-text);
 }
 .sub {
   color: var(--c-text-muted);

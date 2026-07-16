@@ -26,7 +26,7 @@ export function DashboardPage() {
             <StatTile label="Отгрузок сегодня" value={num(data.todayShipments, 0)} tone="default" />
             <StatTile label="Активных заказов" value={num(data.activeOrders, 0)} tone="default" />
             {canSeeFinance && <StatTile label="Приход за месяц" value={money(data.monthIncome)} tone="success" />}
-            {canSeeFinance && <StatTile label="Расход за месяц" value={money(data.monthExpense)} tone="warning" />}
+            {canSeeFinance && <StatTile label="Расход за месяц" value={money(data.monthExpense)} tone="danger" />}
             {canSeeFinance && <StatTile label="Долги холдинга" value={money(data.debtTotal)} tone={data.debtTotal > 0 ? 'danger' : 'default'} />}
             {data.pendingCash > 0 && <StatTile label="Касса ждёт подтверждения" value={num(data.pendingCash, 0)} tone="warning" />}
             {data.pendingApprovals > 0 && <StatTile label="Ждут согласия владельцев" value={num(data.pendingApprovals, 0)} tone="warning" />}

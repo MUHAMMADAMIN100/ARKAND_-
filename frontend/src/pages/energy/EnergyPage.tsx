@@ -10,6 +10,7 @@ import {
   updateElectricityLog,
   deleteElectricityLog,
 } from '../../entities/energy/api';
+import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 import {
   Button,
   Card,
@@ -61,8 +62,8 @@ export function EnergyPage() {
             align: 'right' as const,
             render: (l: ElectricityLogDto) => (
               <span style={{ display: 'inline-flex', gap: 6 }}>
-                <Button size="sm" variant="secondary" onClick={() => { setEditing(l); setModalOpen(true); }}>✎</Button>
-                <Button size="sm" variant="ghost" onClick={() => deleteMut.mutate(l.id)}>🗑</Button>
+                <Button size="sm" variant="secondary" aria-label="Изменить" onClick={() => { setEditing(l); setModalOpen(true); }}><FiEdit2 /></Button>
+                <Button size="sm" variant="ghost" aria-label="Удалить" onClick={() => deleteMut.mutate(l.id)}><FiTrash2 /></Button>
               </span>
             ),
           },

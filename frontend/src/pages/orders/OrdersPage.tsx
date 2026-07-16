@@ -1,6 +1,7 @@
 ﻿import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useFieldArray, useForm } from 'react-hook-form';
+import { FiTrash2 } from 'react-icons/fi';
 import { zodForm as zodResolver } from '../../shared';
 import {
   createOrderSchema,
@@ -217,7 +218,7 @@ function OrderCreateModal({ onClose }: { onClose: () => void }) {
                 <Input type="number" step="0.001" style={{ width: 90 }} {...register(`items.${idx}.quantity`, { valueAsNumber: true })} />
               </Field>
               {fields.length > 1 && (
-                <Button size="sm" variant="ghost" type="button" onClick={() => remove(idx)}>🗑</Button>
+                <Button size="sm" variant="ghost" type="button" aria-label="Убрать позицию" onClick={() => remove(idx)}><FiTrash2 /></Button>
               )}
             </div>
           ))}

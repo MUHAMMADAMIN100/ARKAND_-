@@ -1,50 +1,89 @@
-/* Дизайн-токены. Тёмная тема (промышленный ERP), единый источник цветов/отступов/типографики.
-   Отступы и шрифты — через clamp() для плавной адаптации 320px → desktop без «прыжков». */
+/* Дизайн-токены AKRAND — фирменная система (светлая тема).
+   Палитра из логотипа: вишнёвый феникс (Arkand Crimson), глубокое бордо (Deep Maroon),
+   тёплый чёрный (Warm Ink), фон Paper. Один набор токенов на весь интерфейс —
+   цвета берутся из переменных, а не подбираются «на глаз». */
 :root {
-  /* Палитра — тёмная промышленная */
-  --c-bg: #0b1120;
-  --c-surface: #111a2e;
-  --c-surface-2: #16223c;
-  --c-surface-3: #1d2c4d;
-  --c-border: #263450;
-  --c-border-strong: #35486e;
+  /* ---- Arkand Crimson — шкала (600 — основной) ---- */
+  --crimson-50: #fdf2f3;
+  --crimson-100: #fadee0;
+  --crimson-200: #f3bcc0;
+  --crimson-300: #e88f96;
+  --crimson-400: #d85e68;
+  --crimson-500: #c22530;
+  --crimson-600: #a4161a; /* основной */
+  --crimson-700: #85111a;
+  --crimson-800: #6b0f1b; /* Deep Maroon */
+  --crimson-900: #4e0b12;
+  --crimson-950: #2e070a;
 
-  --c-text: #e8eef7;
-  --c-text-muted: #9fb0cc;
-  --c-text-dim: #6b7d9e;
+  /* ---- Нейтральные — тёплый серый ---- */
+  --wg-0: #ffffff;
+  --wg-50: #faf9fa;
+  --wg-100: #f3f0f1;
+  --wg-200: #e8e3e4;
+  --wg-300: #d7d0d1;
+  --wg-400: #b3aaab;
+  --wg-500: #8c8283;
+  --wg-600: #6a6162;
+  --wg-700: #4b4344;
+  --wg-800: #2c2728;
+  --wg-900: #1a1416; /* Warm Ink */
 
-  --c-primary: #f0a030;      /* янтарь — щебень/карьер */
-  --c-primary-hover: #ffb347;
-  --c-primary-contrast: #1a1204;
+  /* ---- Семантические поверхности (светлая тема) ---- */
+  --c-bg: #faf9fb;          /* Paper — фон страницы */
+  --c-surface: #ffffff;
+  --c-surface-2: var(--wg-50);
+  --c-surface-3: var(--wg-100);
+  --c-border: var(--wg-200);
+  --c-border-strong: var(--wg-300);
 
-  --c-accent: #38bdf8;
-  --c-success: #34d399;
-  --c-success-bg: #04351f;
-  --c-warning: #fbbf24;
-  --c-warning-bg: #3a2c05;
-  --c-danger: #f87171;
-  --c-danger-bg: #3a0f12;
-  --c-info: #60a5fa;
+  --c-text: var(--wg-900);       /* Warm Ink */
+  --c-text-muted: var(--wg-600);
+  --c-text-dim: var(--wg-500);
+
+  /* ---- Бренд: вишнёвый только на кнопках и акцентах ---- */
+  --c-primary: var(--crimson-600);
+  --c-primary-hover: var(--crimson-700);
+  --c-primary-active: var(--crimson-800);
+  --c-primary-contrast: #ffffff;
+  --c-primary-soft: var(--crimson-50);   /* мягкий фон акцента */
+  --c-primary-softer: var(--crimson-100);
+
+  --c-accent: var(--crimson-600);
+
+  /* ---- Статусы интерфейса ---- */
+  --c-success: #158030;
+  --c-success-bg: #e6f4ea;
+  --c-warning: #b45309;
+  --c-warning-bg: #fbf1e3;
+  --c-danger: #dc2626;      /* сигнальный красный: ошибки И денежный минус */
+  --c-danger-bg: #fdeceb;
+  --c-info: #1d4ed8;
+  --c-info-bg: #e9eefb;
+
+  /* ---- Финансы: доход — зелёный, расход/минус — сигнальный красный ---- */
+  --c-money-income: var(--c-success);
+  --c-money-expense: var(--c-danger);
 
   /* Статусные чипы */
-  --c-chip-new: #60a5fa;
-  --c-chip-progress: #fbbf24;
-  --c-chip-done: #34d399;
-  --c-chip-cancel: #94a3b8;
+  --c-chip-new: var(--c-info);
+  --c-chip-progress: var(--c-warning);
+  --c-chip-done: var(--c-success);
+  --c-chip-cancel: var(--wg-500);
 
-  /* Радиусы */
+  /* ---- Радиусы ---- */
   --r-sm: 6px;
-  --r-md: 10px;
-  --r-lg: 14px;
-  --r-xl: 20px;
+  --r-md: 8px;
+  --r-lg: 12px;
+  --r-xl: 18px;
   --r-full: 999px;
 
-  /* Тени */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.35);
-  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.45);
+  /* ---- Тени (мягкие, тёплые под светлый фон) ---- */
+  --shadow-sm: 0 1px 2px rgba(26, 20, 22, 0.06);
+  --shadow-md: 0 4px 14px rgba(26, 20, 22, 0.08);
+  --shadow-lg: 0 14px 40px rgba(26, 20, 22, 0.14);
 
-  /* Отступы — fluid, но с одинаковой пропорцией на 320–425 */
+  /* ---- Отступы ---- */
   --sp-1: 4px;
   --sp-2: 8px;
   --sp-3: 12px;
@@ -54,7 +93,7 @@
   --sp-8: 32px;
   --sp-10: 40px;
 
-  /* Типографика — clamp для плавности */
+  /* ---- Типографика ---- */
   --fs-xs: 12px;
   --fs-sm: 13px;
   --fs-base: 14px;
@@ -66,20 +105,19 @@
   --lh-tight: 1.25;
   --lh-base: 1.5;
 
-  /* Слои */
+  /* ---- Слои ---- */
   --z-sticky: 100;
   --z-header: 200;
   --z-drawer: 300;
   --z-modal: 400;
   --z-toast: 500;
 
-  /* Размеры каркаса */
+  /* ---- Каркас ---- */
   --sidebar-w: 248px;
   --header-h: 56px;
   --bottomnav-h: 60px;
-  --tap-min: 44px; /* минимальная область нажатия (мобильный/карьер) */
-
+  --tap-min: 44px;
   --container-max: 1400px;
 
-  color-scheme: dark;
+  color-scheme: light;
 }

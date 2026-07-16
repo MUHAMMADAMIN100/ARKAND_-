@@ -33,7 +33,6 @@ body {
   overflow-x: hidden;
 }
 
-/* Всё, что может быть шире экрана, скроллится в своём контейнере */
 img,
 svg,
 video {
@@ -62,12 +61,19 @@ button {
 }
 
 :focus-visible {
-  outline: 2px solid var(--c-accent);
+  outline: 2px solid var(--c-primary);
   outline-offset: 2px;
   border-radius: var(--r-sm);
 }
 
-/* Скроллбары */
+/* Иконки react-icons: наследуют цвет и выравниваются по тексту */
+svg {
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+/* Скроллбары — тёплый серый под светлый фон */
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
@@ -76,11 +82,14 @@ button {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--c-border-strong);
+  background: var(--wg-300);
   border-radius: var(--r-full);
 }
+::-webkit-scrollbar-thumb:hover {
+  background: var(--wg-400);
+}
 
-/* Утилита: горизонтально скроллящийся контейнер (таблицы, широкие блоки) */
+/* Горизонтально скроллящийся контейнер (таблицы, широкие блоки) */
 .scroll-x {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
@@ -89,6 +98,13 @@ button {
 /* Числа моноширинно-выровненные (суммы, количества) */
 .tnum {
   font-variant-numeric: tabular-nums;
+}
+
+/* Иконка внутри инлайн-контекста (кнопки-действия, чипы) */
+.icon-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
 }
 
 @media (prefers-reduced-motion: reduce) {

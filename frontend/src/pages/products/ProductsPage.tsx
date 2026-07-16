@@ -11,6 +11,7 @@ import {
   type CreateProductInput,
   type ProductDto,
 } from '@sheben/shared';
+import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 import { productKeys, fetchProducts, createProduct, updateProduct, deleteProduct } from '../../entities/product/api';
 import {
   Button,
@@ -110,12 +111,12 @@ export function ProductsPage() {
             align: 'right' as const,
             render: (p: ProductDto) => (
               <span style={{ display: 'inline-flex', gap: 6 }}>
-                <Button size="sm" variant="secondary" onClick={() => { setEditing(p); setModalOpen(true); }}>
-                  ✎
+                <Button size="sm" variant="secondary" aria-label="Изменить" onClick={() => { setEditing(p); setModalOpen(true); }}>
+                  <FiEdit2 />
                 </Button>
                 {p.isActive && (
-                  <Button size="sm" variant="ghost" onClick={() => deleteMut.mutate(p.id)}>
-                    🗑
+                  <Button size="sm" variant="ghost" aria-label="Деактивировать" onClick={() => deleteMut.mutate(p.id)}>
+                    <FiTrash2 />
                   </Button>
                 )}
               </span>

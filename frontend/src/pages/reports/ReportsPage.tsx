@@ -63,7 +63,7 @@ export function ReportsPage() {
         <>
           <div className={styles.grid}>
             <StatTile label="Приход" value={money(finance.data.income)} tone="success" />
-            <StatTile label="Расход" value={money(finance.data.expense)} tone="warning" />
+            <StatTile label="Расход" value={money(finance.data.expense)} tone="danger" />
             <StatTile label="Прибыль" value={money(finance.data.profit)} tone={finance.data.profit >= 0 ? 'success' : 'danger'} />
             <StatTile label="Себестоимость ед." value={money(finance.data.unitCost)} hint="за м³" tone="primary" />
             <StatTile label="Бартер-отгрузки" value={money(finance.data.barterShipped)} />

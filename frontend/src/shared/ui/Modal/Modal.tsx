@@ -1,6 +1,7 @@
 import { useEffect, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { clsx } from 'clsx';
+import { FiX } from 'react-icons/fi';
 import styles from './Modal.module.css';
 
 interface ModalProps {
@@ -39,7 +40,7 @@ export function Modal({ open, onClose, title, children, footer, size = 'md' }: M
           <header className={styles.header}>
             <h2 className={styles.title}>{title}</h2>
             <button className={styles.close} onClick={onClose} aria-label="Закрыть">
-              ✕
+              <FiX />
             </button>
           </header>
         )}

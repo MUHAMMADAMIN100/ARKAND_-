@@ -2,6 +2,7 @@
 import { zodForm as zodResolver } from '../../shared';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import { FiHexagon } from 'react-icons/fi';
 import { loginSchema, type LoginInput, type LoginResponse } from '@sheben/shared';
 import { http, HttpError } from '../../shared/api/http';
 import { useAuthStore } from '../../shared/auth/auth.store';
@@ -34,7 +35,9 @@ export function LoginPage() {
     <div className={styles.wrap}>
       <form className={styles.card} onSubmit={handleSubmit(onSubmit)}>
         <div className={styles.brand}>
-          <span className={styles.icon}>🪨</span>
+          <span className={styles.icon}>
+            <FiHexagon />
+          </span>
           <h1 className={styles.title}>Щебёночный завод</h1>
           <p className={styles.sub}>Система учёта карьера</p>
         </div>

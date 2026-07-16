@@ -1,6 +1,7 @@
 ﻿import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
+import { FiCheck, FiX } from 'react-icons/fi';
 import { zodForm as zodResolver } from '../../shared';
 import {
   createCashTransactionSchema,
@@ -106,8 +107,8 @@ function CashTab() {
             render: (c: CashTransactionDto) =>
               c.status === 'PENDING' ? (
                 <span style={{ display: 'inline-flex', gap: 4 }}>
-                  <Button size="sm" variant="success" onClick={() => decideMut.mutate({ id: c.id, decision: 'CONFIRM' })}>✓</Button>
-                  <Button size="sm" variant="ghost" onClick={() => decideMut.mutate({ id: c.id, decision: 'REJECT' })}>✕</Button>
+                  <Button size="sm" variant="success" aria-label="Подтвердить" onClick={() => decideMut.mutate({ id: c.id, decision: 'CONFIRM' })}><FiCheck /></Button>
+                  <Button size="sm" variant="ghost" aria-label="Отклонить" onClick={() => decideMut.mutate({ id: c.id, decision: 'REJECT' })}><FiX /></Button>
                 </span>
               ) : null,
           },

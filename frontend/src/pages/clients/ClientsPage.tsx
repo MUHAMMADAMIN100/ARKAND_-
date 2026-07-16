@@ -10,6 +10,7 @@ import {
   type ClientDto,
 } from '@sheben/shared';
 import type { Paginated } from '@sheben/shared';
+import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 import { clientKeys, fetchClients, createClient, updateClient, deleteClient } from '../../entities/client/api';
 import {
   Button,
@@ -146,12 +147,13 @@ export function ClientsPage() {
                     setEditing(c);
                     setModalOpen(true);
                   }}
+                  aria-label="Изменить"
                 >
-                  ✎
+                  <FiEdit2 />
                 </Button>
                 {c.isActive && (
-                  <Button size="sm" variant="ghost" onClick={() => deleteMut.mutate(c.id)}>
-                    🗑
+                  <Button size="sm" variant="ghost" aria-label="Деактивировать" onClick={() => deleteMut.mutate(c.id)}>
+                    <FiTrash2 />
                   </Button>
                 )}
               </span>

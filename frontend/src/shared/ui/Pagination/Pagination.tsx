@@ -1,3 +1,4 @@
+import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { Button } from '../Button/Button';
 import styles from './Pagination.module.css';
 
@@ -20,14 +21,14 @@ export function Pagination({
         {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, total)} из {total}
       </span>
       <div className={styles.controls}>
-        <Button size="sm" variant="secondary" disabled={page <= 1} onClick={() => onPage(page - 1)}>
-          ←
+        <Button size="sm" variant="secondary" disabled={page <= 1} onClick={() => onPage(page - 1)} aria-label="Назад">
+          <FiChevronLeft />
         </Button>
         <span className={styles.page}>
           {page} / {pages}
         </span>
-        <Button size="sm" variant="secondary" disabled={page >= pages} onClick={() => onPage(page + 1)}>
-          →
+        <Button size="sm" variant="secondary" disabled={page >= pages} onClick={() => onPage(page + 1)} aria-label="Вперёд">
+          <FiChevronRight />
         </Button>
       </div>
     </div>
