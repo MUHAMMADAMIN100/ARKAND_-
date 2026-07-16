@@ -10,7 +10,7 @@ import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 
 async function bootstrap(): Promise<void> {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule, { bufferLogs: true });
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.useLogger(app.get(PinoLogger));
 
   const config = app.get(ConfigService);
@@ -56,4 +56,8 @@ async function bootstrap(): Promise<void> {
   logger.log(`API запущен на :${port}${isProd ? '' : ' (Swagger: /api/docs)'}`);
 }
 
-void bootstrap();
+bootstrap().catch((err) => {
+  // Причина падения на старте — напрямую в stderr (не через буфер логгера), чтобы была видна в логах деплоя.
+  console.error('Ошибка старта приложения:', err);
+  process.exit(1);
+});
