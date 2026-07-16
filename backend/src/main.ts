@@ -53,7 +53,7 @@ async function bootstrap(): Promise<void> {
 
   await app.listen(port, '0.0.0.0');
   const logger = app.get(PinoLogger);
-  logger.log(`API запущен на :${port}${isProd ? '' : ' (Swagger: /api/docs)'}`);
+  logger.log(`API слушает 0.0.0.0:${port} · health: /api/health${isProd ? '' : ' · Swagger: /api/docs'}`);
 }
 
 bootstrap().catch((err) => {
